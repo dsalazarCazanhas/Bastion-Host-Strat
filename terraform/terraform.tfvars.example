@@ -1,0 +1,24 @@
+# Copy this file to terraform.tfvars and fill in the real values.
+# terraform.tfvars is git-ignored — NEVER commit it.
+#
+# How to find your public IP:
+#   curl -s https://checkip.amazonaws.com
+#
+# How to generate Ed25519 keys (run once per key, on your local machine):
+#   ssh-keygen -t ed25519 -f ~/.ssh/bastion_key -C "bastion"
+#   ssh-keygen -t ed25519 -f ~/.ssh/private_server_key -C "private-server"
+
+aws_region   = "us-east-2"
+project_name = "bastion-host"
+
+# Instance type — t3.micro is free-tier eligible on accounts created after 2021
+instance_type = "t3.micro"
+
+# Your public IP — replace with: curl -s https://checkip.amazonaws.com
+allowed_cidr = "YOUR_PUBLIC_IP/32"
+
+# Paste the contents of ~/.ssh/bastion_key.pub
+bastion_public_key = "ssh-ed25519 AAAA... bastion"
+
+# Paste the contents of ~/.ssh/private_server_key.pub
+private_server_public_key = "ssh-ed25519 AAAA... private-server"
