@@ -1,0 +1,83 @@
+# Load drop-in configs first (e.g. 99-mfa.conf from the mfa role).
+# sshd uses first-match-wins, so drop-ins processed here take precedence
+# over any duplicate directives defined below.
+Include /etc/ssh/sshd_config.d/*.conf
+
+# Port 22 — not changed; security through obscurity is not a meaningful control
+Port 22
+
+# Bind to all interfaces
+ListenAddress 0.0.0.0
+
+# ──────────────────────────────────────────
+# Authentication
+# ──────────────────────────────────────────
+PermitRootLogin no
+PasswordAuthentication no
+PermitEmptyPasswords no
+PubkeyAuthentication yes
+AuthorizedKeysFile .ssh/authorized_keys
+
+# Restricts the allowed authentication methods.
+# On the bastion this becomes "publickey,keyboard-interactive" when MFA is applied.
+AuthenticationMethods {{ ssh_authentication_methods }}
+
+# PAM must stay enabled — required for MFA (google-authenticator PAM module)
+UsePAM yes
+
+# Reject challenge-response auth unless explicitly enabled (MFA role enables it)
+ChallengeResponseAuthentication no
+KbdInteractiveAuthentication no
+
+# Disable unused authentication methods
+KerberosAuthentication no
+GSSAPIAuthentication no
+
+# ──────────────────────────────────────────
+# Session hardening
+# ──────────────────────────────────────────
+
+# Disconnect unauthenticated connections after 60 seconds
+LoginGraceTime 60
+
+# Limit authentication attempts per connection
+MaxAuthTries 3
+
+# Limit concurrent unauthenticated connections (start:rate:full)
+MaxStartups 5:50:10
+
+# Disconnect idle sessions
+ClientAliveInterval {{ ssh_client_alive_interval }}
+ClientAliveCountMax {{ ssh_client_alive_count_max }}
+
+# ──────────────────────────────────────────
+# Forwarding and tunneling
+# ──────────────────────────────────────────
+
+# Must be "yes" on bastion (ProxyJump requires direct-tcpip channel)
+# Must be "no" on private server
+AllowTcpForwarding {{ ssh_allow_tcp_forwarding }}
+
+# Agent forwarding disabled on both servers — ProxyJump does not require it
+# Enabling it would expose the local SSH agent if the server is compromised
+AllowAgentForwarding no
+
+# Disable features not needed in this setup
+X11Forwarding no
+PermitTunnel no
+AllowStreamLocalForwarding no
+
+# ──────────────────────────────────────────
+# Logging
+# ──────────────────────────────────────────
+
+# VERBOSE logs the key fingerprint on every successful login — useful for auditing
+SyslogFacility AUTH
+LogLevel VERBOSE
+
+# ──────────────────────────────────────────
+# Miscellaneous
+# ──────────────────────────────────────────
+PrintMotd no
+AcceptEnv LANG LC_*
+Subsystem sftp /usr/lib/openssh/sftp-server

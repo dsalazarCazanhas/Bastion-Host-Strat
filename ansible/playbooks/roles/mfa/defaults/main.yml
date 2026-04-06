@@ -1,0 +1,4 @@
+# If true, users who have NOT yet run google-authenticator can still log in.
+# Set to false once all users have enrolled their TOTP secret.
+# Keeping this true during initial setup prevents accidental lockout.
+mfa_nullok: false

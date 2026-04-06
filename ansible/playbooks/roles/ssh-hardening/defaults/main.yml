@@ -1,0 +1,14 @@
+# Defaults can be overridden per host or group in the playbook
+
+# AllowTcpForwarding must be "yes" on the bastion so ProxyJump can open
+# a direct-tcpip channel to the private server. Private server keeps "no".
+ssh_allow_tcp_forwarding: "no"
+
+# Authentication methods — extended to "publickey,keyboard-interactive" on
+# the bastion when the mfa role is applied (F9)
+ssh_authentication_methods: "publickey"
+
+# Idle session timeout: disconnect after ~5 minutes of inactivity
+# ClientAliveInterval * ClientAliveCountMax = seconds before forced disconnect
+ssh_client_alive_interval: 60
+ssh_client_alive_count_max: 5

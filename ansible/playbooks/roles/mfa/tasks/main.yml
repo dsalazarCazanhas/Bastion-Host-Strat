@@ -1,0 +1,62 @@
+---
+- name: Install libpam-google-authenticator
+  ansible.builtin.apt:
+    name: libpam-google-authenticator
+    state: present
+    update_cache: true
+
+# Deploy the PAM sshd config — completely replaces the default to control
+# exactly which auth modules run. See templates/pam_sshd.j2 for details.
+- name: Deploy PAM sshd configuration
+  ansible.builtin.template:
+    src: pam_sshd.j2
+    dest: /etc/pam.d/sshd
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Reload sshd
+
+# Drop-in config for sshd — enables KbdInteractiveAuthentication and sets
+# AuthenticationMethods to publickey,keyboard-interactive.
+# Uses sshd_config.d/ so the mfa role does not conflict with ssh-hardening.
+- name: Deploy sshd MFA drop-in config
+  ansible.builtin.template:
+    src: sshd_mfa.conf.j2
+    dest: /etc/ssh/sshd_config.d/99-mfa.conf
+    owner: root
+    group: root
+    mode: "0600"
+  notify: Reload sshd
+
+# Validate the full sshd config (main + all drop-ins) after the file is in place.
+# sshd -t without -f reads /etc/ssh/sshd_config and all Include'd files,
+# which is the correct way to validate a drop-in fragment.
+- name: Validate full sshd configuration (including drop-ins)
+  ansible.builtin.command: /usr/sbin/sshd -t
+  changed_when: false
+
+# Print enrollment instructions — the operator must run google-authenticator
+# manually as the ubuntu user. This cannot be automated: it generates a TOTP
+# secret and QR code that the user scans with their authenticator app.
+- name: Print TOTP enrollment instructions
+  ansible.builtin.debug:
+    msg: |
+      ============================================================
+       MFA ENROLLMENT REQUIRED
+      ============================================================
+       SSH into the bastion host and run as the ubuntu user:
+
+         google-authenticator \
+           --time-based \
+           --disallow-reuse \
+           --force \
+           --rate-limit=3 \
+           --rate-time=30 \
+           --window-size=3
+
+       Scan the QR code with Google Authenticator, Authy, or any
+       TOTP-compatible app.
+
+       Once enrolled, set mfa_nullok: false in the mfa role defaults
+       and re-run this playbook to enforce MFA for all users.
+      ============================================================

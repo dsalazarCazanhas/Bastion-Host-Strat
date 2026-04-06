@@ -1,0 +1,31 @@
+# Managed by Ansible — do not edit manually
+#
+# PAM configuration for SSH with TOTP (google-authenticator)
+#
+# Authentication flow:
+#   1. SSH public key  — verified by sshd directly (not PAM)
+#   2. TOTP code       — verified here by pam_google_authenticator
+#
+# common-auth (@include) is intentionally omitted: it would require a Unix
+# password in addition to TOTP. Since sshd handles pubkey and PAM handles
+# only the second factor, password auth is not needed here.
+
+auth required pam_google_authenticator.so {% if mfa_nullok %}nullok {% endif %}secret=/home/${USER}/.google_authenticator
+
+# Standard account, session, and password modules (unchanged)
+@include common-account
+
+account    required   pam_nologin.so
+
+session [success=ok ignore=ignore module_unknown=ignore default=bad] pam_selinux.so close
+session    required   pam_loginuid.so
+session    optional   pam_keyinit.so force revoke
+@include common-session
+session    optional   pam_motd.so motd=/run/motd.dynamic
+session    optional   pam_mail.so standard noenv
+session    required   pam_limits.so
+session    required   pam_env.so
+session    required   pam_env.so user_readenv=1 envfile=/etc/default/locale
+session [success=ok ignore=ignore module_unknown=ignore default=bad] pam_selinux.so open
+
+@include common-password

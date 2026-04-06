@@ -1,0 +1,9 @@
+# Managed by Ansible — do not edit manually
+# MFA-specific SSH directives. Loaded via Include in sshd_config.
+# These override the base ssh-hardening config for the bastion host only.
+
+# Enable keyboard-interactive so PAM can prompt for the TOTP code
+KbdInteractiveAuthentication yes
+
+# Require SSH public key first, then PAM keyboard-interactive (TOTP)
+AuthenticationMethods publickey,keyboard-interactive
