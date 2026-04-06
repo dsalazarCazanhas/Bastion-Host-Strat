@@ -178,3 +178,7 @@ terraform destroy
 ```
 
 This removes all AWS resources created by this project. The Elastic IP is released and billing stops.
+
+---
+
+> A journey to grow up from [Roadmap.sh](https://roadmap.sh/projects/bastion-host)
