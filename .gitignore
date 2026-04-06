@@ -35,3 +35,63 @@ override.tf.json
 # Ignore CLI configuration files
 .terraformrc
 terraform.rc
+
+# Terraform lock file (regenerable via terraform init)
+.terraform.lock.hcl
+
+# Terraform plan output
+*.tfplan
+
+# ──────────────────────────────────────────
+# Ansible
+# ──────────────────────────────────────────
+
+# Inventarios con IPs/hosts reales
+ansible/inventory/hosts.ini
+ansible/inventory/*.ini
+!ansible/inventory/*.example
+
+# Vault passwords
+.vault_pass
+vault-password-file
+*.vault
+
+# Archivos de retry generados por Ansible
+*.retry
+
+# ──────────────────────────────────────────
+# SSH Keys — NUNCA claves privadas al repo
+# ──────────────────────────────────────────
+*.pem
+*.key
+id_ed25519
+id_ed25519.pub
+bastion_key
+bastion_key.pub
+private_server_key
+private_server_key.pub
+
+# Configuración SSH local con IPs reales
+ssh_config
+
+# ──────────────────────────────────────────
+# Credenciales AWS — NUNCA al repo
+# ──────────────────────────────────────────
+.aws/
+credentials
+
+# ──────────────────────────────────────────
+# Sistema operativo
+# ──────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ──────────────────────────────────────────
+# Editores
+# ──────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
