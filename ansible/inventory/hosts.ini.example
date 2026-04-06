@@ -1,0 +1,17 @@
+# Copy this file to hosts.ini and fill in the real values from Terraform outputs:
+#   terraform -chdir=../terraform output bastion_public_ip
+#   terraform -chdir=../terraform output private_server_ip
+#
+# hosts.ini is git-ignored — NEVER commit it.
+#
+# ProxyCommand for the private server is defined in inventory/group_vars/private.yml
+# Edit that file and replace BASTION_EIP with the real bastion Elastic IP.
+
+[bastion]
+bastion-host ansible_host=BASTION_EIP ansible_ssh_private_key_file=~/.ssh/bastion_key
+
+[bastion:vars]
+ansible_ssh_common_args='-o ControlMaster=auto -o ControlPersist=60s'
+
+[private]
+private-server ansible_host=PRIVATE_IP ansible_ssh_private_key_file=~/.ssh/private_server_key

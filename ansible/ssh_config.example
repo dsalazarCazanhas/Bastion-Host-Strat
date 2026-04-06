@@ -1,0 +1,25 @@
+# Ansible SSH config for this project.
+# Copy this file to ssh_config and fill in the real IPs.
+# ssh_config is git-ignored — NEVER commit it.
+#
+# Values from Terraform:
+#   terraform -chdir=../terraform output bastion_public_ip
+#   terraform -chdir=../terraform output private_server_ip
+
+# Jump host entry — used as the ProxyJump target for the private server
+Host bastion-jump
+    HostName                BASTION_EIP
+    User                    ubuntu
+    IdentityFile            ~/.ssh/bastion_key
+    ControlMaster           no
+    BatchMode               yes
+    StrictHostKeyChecking   accept-new
+
+# Private server entry — Ansible resolves this by IP, so use the actual IP here
+Host PRIVATE_IP
+    HostName                PRIVATE_IP
+    User                    ubuntu
+    IdentityFile            ~/.ssh/private_server_key
+    ProxyJump               bastion-jump
+    ControlMaster           no
+    StrictHostKeyChecking   accept-new

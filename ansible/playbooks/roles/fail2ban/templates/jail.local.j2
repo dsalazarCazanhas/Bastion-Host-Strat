@@ -1,0 +1,24 @@
+[DEFAULT]
+# Ubuntu 24.04 uses systemd-journald as the primary log backend.
+# Using "systemd" here ensures fail2ban reads from the journal directly
+# and does not miss events that may not be flushed to /var/log/auth.log yet.
+backend  = systemd
+
+bantime  = {{ fail2ban_bantime }}
+findtime = {{ fail2ban_findtime }}
+maxretry = {{ fail2ban_maxretry }}
+
+# Ban action: drop incoming packets from the offending IP via iptables
+banaction = iptables-multiport
+
+# ──────────────────────────────────────────
+# SSH jail — the only surface exposed to the internet on the bastion
+# ──────────────────────────────────────────
+[sshd]
+enabled  = true
+port     = ssh
+filter   = sshd
+# journalmatch scopes fail2ban to the sshd unit — avoids false positives
+# from other services that also log to AUTH facility
+journalmatch = _SYSTEMD_UNIT=ssh.service
+maxretry = {{ fail2ban_maxretry }}
