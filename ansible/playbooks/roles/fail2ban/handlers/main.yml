@@ -1,0 +1,4 @@
+---
+- name: Restart fail2ban
+  ansible.builtin.command: systemctl restart fail2ban
+  changed_when: false

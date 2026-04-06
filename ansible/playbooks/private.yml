@@ -1,0 +1,17 @@
+---
+- name: Configure private server
+  hosts: private
+  become: true
+
+  # No pre_tasks: the private server has no route to the internet (no NAT Gateway),
+  # so apt update would hang indefinitely. ssh-hardening only deploys a config
+  # file and reloads sshd — no package installation required.
+
+  # All ssh-hardening defaults apply as-is:
+  #   ssh_allow_tcp_forwarding: "no"
+  #   ssh_authentication_methods: "publickey"
+  # fail2ban and mfa are intentionally not applied — the private server
+  # has no public IP and accepts connections only from the bastion SG.
+
+  roles:
+    - role: ssh-hardening

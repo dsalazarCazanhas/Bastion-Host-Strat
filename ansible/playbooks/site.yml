@@ -1,0 +1,15 @@
+---
+# Entry point — runs all playbooks in dependency order.
+# The bastion is configured first because the private server is only
+# reachable through it; Ansible needs the bastion to already be accessible
+# before attempting the ProxyJump connection to the private server.
+#
+# Usage:
+#   ansible-playbook playbooks/site.yml
+#
+# Run a single host group:
+#   ansible-playbook playbooks/bastion.yml
+#   ansible-playbook playbooks/private.yml
+
+- import_playbook: bastion.yml
+- import_playbook: private.yml

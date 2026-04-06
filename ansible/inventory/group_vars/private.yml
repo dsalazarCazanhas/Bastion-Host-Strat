@@ -1,0 +1,2 @@
+---
+ansible_ssh_common_args: '-o ProxyCommand="ssh -W %h:%p -i ~/.ssh/bastion_key -o StrictHostKeyChecking=accept-new -q ubuntu@BASTION_EIP"'

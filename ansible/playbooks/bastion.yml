@@ -1,0 +1,39 @@
+---
+- name: Configure bastion host
+  hosts: bastion
+  become: true
+
+  pre_tasks:
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 3600
+
+    - name: Install base utilities
+      ansible.builtin.apt:
+        name:
+          - curl
+          - wget
+          - git
+          - unzip
+          - htop
+        state: present
+
+  vars:
+    # Bastion must allow TCP forwarding so ProxyJump can open a direct-tcpip
+    # channel to the private server. All other forwarding types remain disabled.
+    ssh_allow_tcp_forwarding: "yes"
+
+    # ssh-hardening sets "publickey" by default.
+    # The mfa role overrides this via the sshd drop-in (99-mfa.conf),
+    # but the PAM template also expect keyboard-interactive to be declared here
+    # so the base sshd_config stays consistent with the drop-in.
+    ssh_authentication_methods: "publickey"
+
+  roles:
+    - role: ssh-hardening
+      tags: ssh-hardening
+    - role: fail2ban
+      tags: fail2ban
+    - role: mfa
+      tags: mfa

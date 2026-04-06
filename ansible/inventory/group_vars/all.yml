@@ -1,0 +1,3 @@
+---
+# Python interpreter — explícito para evitar warning de auto-discovery
+ansible_python_interpreter: /usr/bin/python3

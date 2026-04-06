@@ -1,0 +1,11 @@
+# Number of failures before an IP is banned
+fail2ban_maxretry: 3
+
+# Time window in which maxretry failures trigger a ban (seconds)
+fail2ban_findtime: 600   # 10 minutes
+
+# Duration of the ban (seconds). -1 = permanent ban
+fail2ban_bantime: 3600   # 1 hour
+
+# Email for ban notifications — leave empty to disable action_mw
+fail2ban_destemail: ""

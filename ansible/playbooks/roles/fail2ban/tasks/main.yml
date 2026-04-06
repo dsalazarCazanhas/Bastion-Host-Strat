@@ -1,0 +1,42 @@
+---
+# fail2ban is in the Ubuntu "universe" repository, which is not enabled by
+# default on EC2 AMIs. software-properties-common provides add-apt-repository.
+- name: Install software-properties-common
+  ansible.builtin.apt:
+    name: software-properties-common
+    state: present
+    update_cache: true
+
+- name: Enable universe repository
+  ansible.builtin.command: add-apt-repository universe --yes
+  changed_when: false
+
+- name: Update apt cache after enabling universe
+  ansible.builtin.apt:
+    update_cache: true
+
+- name: Install fail2ban
+  ansible.builtin.apt:
+    name: fail2ban
+    state: present
+
+# Deploy config before starting the service so the first run picks up
+# the correct jail settings rather than the package defaults
+- name: Deploy jail.local from template
+  ansible.builtin.template:
+    src: jail.local.j2
+    dest: /etc/fail2ban/jail.local
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart fail2ban
+
+- name: Enable and start fail2ban via systemctl
+  ansible.builtin.command: systemctl enable --now fail2ban
+  changed_when: false
+
+- name: Verify fail2ban is active
+  ansible.builtin.command: systemctl is-active fail2ban
+  register: fail2ban_status
+  changed_when: false
+  failed_when: fail2ban_status.rc != 0
